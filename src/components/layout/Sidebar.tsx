@@ -1,6 +1,9 @@
 'use client';
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
+  LayoutDashboard,
   Wind,
   CloudSun,
   Car,
@@ -18,31 +21,90 @@ import {
   ChevronLeft,
   ChevronRight,
   Map,
+  Landmark,
+  Vote,
+  HandCoins,
+  Wallet,
+  Gavel,
+  FileText,
+  Star,
+  AlertTriangle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDashboardStore } from '@/lib/store';
-import type { PanelId } from '@/types';
 
-const NAV_ITEMS: { id: PanelId; label: string; icon: React.ReactNode; key: string }[] = [
-  { id: 'aqi', label: 'Air Quality', icon: <Wind size={18} />, key: '1' },
-  { id: 'weather', label: 'Weather', icon: <CloudSun size={18} />, key: '2' },
-  { id: 'traffic', label: 'Traffic', icon: <Car size={18} />, key: '3' },
-  { id: 'stocks', label: 'Stocks', icon: <TrendingUp size={18} />, key: '4' },
-  { id: 'news', label: 'News', icon: <Newspaper size={18} />, key: '5' },
-  { id: 'metro', label: 'Metro', icon: <Train size={18} />, key: '6' },
-  { id: 'flights', label: 'Flights', icon: <Plane size={18} />, key: '7' },
-  { id: 'mandi', label: 'Mandi', icon: <Wheat size={18} />, key: '8' },
-  { id: 'water', label: 'Water', icon: <Droplets size={18} />, key: '9' },
-  { id: 'health', label: 'Health', icon: <Heart size={18} />, key: '0' },
-  { id: 'satellite', label: 'Satellite', icon: <Satellite size={18} />, key: '' },
-  { id: 'economy', label: 'Economy', icon: <Building2 size={18} />, key: '' },
-  { id: 'realestate', label: 'Property', icon: <Home size={18} />, key: '' },
-  { id: 'social', label: 'Social', icon: <Users size={18} />, key: '' },
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+  key?: string;
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: 'Overview',
+    items: [
+      { href: '/', label: 'Dashboard', icon: <LayoutDashboard size={16} /> },
+      { href: '/overview', label: 'City Health', icon: <Map size={16} /> },
+      { href: '/alerts', label: 'Local Alerts', icon: <AlertTriangle size={16} /> },
+    ],
+  },
+  {
+    label: 'Live Data',
+    items: [
+      { href: '/aqi', label: 'Air Quality', icon: <Wind size={16} />, key: '1' },
+      { href: '/weather', label: 'Weather', icon: <CloudSun size={16} />, key: '2' },
+      { href: '/water', label: 'Water', icon: <Droplets size={16} />, key: '9' },
+      { href: '/traffic', label: 'Traffic', icon: <Car size={16} />, key: '3' },
+      { href: '/metro', label: 'Metro', icon: <Train size={16} />, key: '6' },
+      { href: '/flights', label: 'Flights', icon: <Plane size={16} />, key: '7' },
+      { href: '/news', label: 'News', icon: <Newspaper size={16} />, key: '5' },
+    ],
+  },
+  {
+    label: 'Governance',
+    items: [
+      { href: '/leaders', label: 'Leadership', icon: <Landmark size={16} /> },
+      { href: '/elections', label: 'Elections', icon: <Vote size={16} /> },
+      { href: '/budget', label: 'Budget', icon: <Wallet size={16} /> },
+      { href: '/courts', label: 'Courts', icon: <Gavel size={16} /> },
+    ],
+  },
+  {
+    label: 'Citizen',
+    items: [
+      { href: '/schemes', label: 'Schemes', icon: <HandCoins size={16} /> },
+      { href: '/services', label: 'Services', icon: <FileText size={16} /> },
+      { href: '/health', label: 'Health', icon: <Heart size={16} />, key: '0' },
+      { href: '/personalities', label: 'Personalities', icon: <Star size={16} /> },
+    ],
+  },
+  {
+    label: 'Markets',
+    items: [
+      { href: '/stocks', label: 'Stocks', icon: <TrendingUp size={16} />, key: '4' },
+      { href: '/mandi', label: 'Mandi', icon: <Wheat size={16} />, key: '8' },
+      { href: '/economy', label: 'Economy', icon: <Building2 size={16} /> },
+      { href: '/realestate', label: 'Property', icon: <Home size={16} /> },
+    ],
+  },
+  {
+    label: 'Other',
+    items: [
+      { href: '/satellite', label: 'Satellite', icon: <Satellite size={16} /> },
+      { href: '/social', label: 'Social', icon: <Users size={16} /> },
+    ],
+  },
 ];
 
 export function Sidebar() {
-  const { activePanel, setActivePanel, sidebarCollapsed, toggleSidebar, toggleMap } =
-    useDashboardStore();
+  const { sidebarCollapsed, toggleSidebar, toggleMap } = useDashboardStore();
+  const pathname = usePathname();
 
   return (
     <aside
@@ -52,7 +114,10 @@ export function Sidebar() {
       )}
     >
       {/* Logo */}
-      <div className="flex h-14 items-center gap-2 border-b border-gray-800 px-3">
+      <Link
+        href="/"
+        className="flex h-14 items-center gap-2 border-b border-gray-800 px-3"
+      >
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#E8A87C] to-[#D4A373] text-xs font-bold text-black">
           HM
         </div>
@@ -61,7 +126,7 @@ export function Sidebar() {
             Hyderabad Monitor
           </span>
         )}
-      </div>
+      </Link>
 
       {/* Map toggle */}
       <button
@@ -69,32 +134,45 @@ export function Sidebar() {
         className="flex items-center gap-3 px-3 py-2 mx-1 mt-2 rounded-md text-gray-400 hover:bg-gray-800 hover:text-gray-200 transition-colors"
         title="Toggle Map (M)"
       >
-        <Map size={18} />
+        <Map size={16} />
         {!sidebarCollapsed && <span className="text-xs">Map View</span>}
       </button>
 
-      {/* Nav items */}
-      <nav className="mt-2 flex flex-1 flex-col gap-0.5 overflow-y-auto px-1">
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActivePanel(activePanel === item.id ? null : item.id)}
-            className={cn(
-              'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
-              activePanel === item.id
-                ? 'bg-[#E8A87C]/10 text-[#E8A87C]'
-                : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
-            )}
-            title={`${item.label}${item.key ? ` (${item.key})` : ''}`}
-          >
-            {item.icon}
+      {/* Nav groups */}
+      <nav className="mt-2 flex flex-1 flex-col gap-0.5 overflow-y-auto px-1 pb-2">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.label} className="mt-2">
             {!sidebarCollapsed && (
-              <span className="flex-1 truncate text-left">{item.label}</span>
+              <div className="px-3 pb-1 text-[9px] font-semibold uppercase tracking-widest text-gray-600">
+                {group.label}
+              </div>
             )}
-            {!sidebarCollapsed && item.key && (
-              <kbd className="text-[10px] text-gray-600">{item.key}</kbd>
-            )}
-          </button>
+            {group.items.map((item) => {
+              const isActive =
+                pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 rounded-md px-3 py-1.5 text-xs transition-colors',
+                    isActive
+                      ? 'bg-[#E8A87C]/10 text-[#E8A87C]'
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
+                  )}
+                  title={`${item.label}${item.key ? ` (${item.key})` : ''}`}
+                >
+                  {item.icon}
+                  {!sidebarCollapsed && (
+                    <span className="flex-1 truncate text-left">{item.label}</span>
+                  )}
+                  {!sidebarCollapsed && item.key && (
+                    <kbd className="text-[9px] text-gray-600">{item.key}</kbd>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
         ))}
       </nav>
 
